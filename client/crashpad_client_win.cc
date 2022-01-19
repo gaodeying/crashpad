@@ -179,7 +179,8 @@ LONG WINAPI UnhandledExceptionHandler(EXCEPTION_POINTERS* exception_pointers) {
 
   LOG(ERROR) << "crash server did not respond, self-terminating";
 
-  SafeTerminateProcess(GetCurrentProcess(), kTerminationCodeCrashNoDump);
+  // winpos: disable terminate process
+  //SafeTerminateProcess(GetCurrentProcess(), kTerminationCodeCrashNoDump);
 
   return EXCEPTION_CONTINUE_SEARCH;
 }
@@ -575,7 +576,10 @@ void CommonInProcessInitialization() {
 }
 
 void RegisterHandlers() {
-  SetUnhandledExceptionFilter(&UnhandledExceptionHandler);
+  //SetUnhandledExceptionFilter(&UnhandledExceptionHandler);
+
+  // winpos: topLevelEH -> VEH
+  AddVectoredExceptionHandler(true, &UnhandledExceptionHandler);
 
   // The Windows CRT's signal.h lists:
   // - SIGINT
