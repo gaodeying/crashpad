@@ -170,7 +170,7 @@ LONG WINAPI UnhandledExceptionHandler(EXCEPTION_POINTERS* exception_pointers) {
   SetEvent(g_signal_exception);
 
   // Time to wait for the handler to create a dump.
-  constexpr DWORD kMillisecondsUntilTerminate = 60 * 1000;
+  constexpr DWORD kMillisecondsUntilTerminate = 10 * 1000;
 
   // Sleep for a while to allow it to process us. Eventually, we terminate
   // ourselves in case the crash server is gone, so that we don't leave zombies
@@ -179,7 +179,8 @@ LONG WINAPI UnhandledExceptionHandler(EXCEPTION_POINTERS* exception_pointers) {
 
   LOG(ERROR) << "crash server did not respond, self-terminating";
 
-  SafeTerminateProcess(GetCurrentProcess(), kTerminationCodeCrashNoDump);
+  // winpos: disable terminate process
+  //SafeTerminateProcess(GetCurrentProcess(), kTerminationCodeCrashNoDump);
 
   return EXCEPTION_CONTINUE_SEARCH;
 }
@@ -575,7 +576,10 @@ void CommonInProcessInitialization() {
 }
 
 void RegisterHandlers() {
-  SetUnhandledExceptionFilter(&UnhandledExceptionHandler);
+  //SetUnhandledExceptionFilter(&UnhandledExceptionHandler);
+
+  // winpos: topLevelEH -> VEH
+  AddVectoredExceptionHandler(true, &UnhandledExceptionHandler);
 
   // The Windows CRT's signal.h lists:
   // - SIGINT

@@ -545,8 +545,8 @@ void __stdcall ExceptionHandlerServer::OnCrashDumpEvent(void* ctx, BOOLEAN) {
       client->process(),
       client->crash_exception_information_address(),
       client->debug_critical_section_address());
-
-  SafeTerminateProcess(client->process(), exit_code);
+  // winpos: disable terminate
+  //SafeTerminateProcess(client->process(), exit_code);
 }
 
 // static
